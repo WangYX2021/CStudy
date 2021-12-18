@@ -5,5 +5,6 @@
 
 int main(int argc, char**argv)
 {	
+	printf("Start the code.\r\n");
 	printf("hello world\r\n");	
 }
