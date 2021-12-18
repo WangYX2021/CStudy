@@ -6,7 +6,7 @@
 int main(int argc, char**argv)
 {	
 
-	//program start at printf
+	//program start at here.
 	printf("Start modify this program.....\r\n");
 	printf("hello world\r\n");	
 }
