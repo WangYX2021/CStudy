@@ -5,7 +5,10 @@
 
 int main(int argc, char**argv)
 {	
+
 	printf("Start test the code.....\r\n");
+	//program start at printf
+	printf("Start the program.....\r\n");
 	printf("hello world\r\n");	
 	//end the file.
 }
