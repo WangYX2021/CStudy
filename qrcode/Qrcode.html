@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>二维码生成</title>
+<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /-->
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+</head>
+<body>
+<h1>二维码生成</h1>
+<p>输入设备ID</p>
+<input id="devid" name="" type="text" size="22" value="1234567890" />
+<label><input id="ext" type="checkbox" value="0" checked="true"/>扩展<label>
+
+<p>选择设备类型</p>
+<select id="typedev" name=""> 
+<option value="1">ipc</option> 
+<option value="2">dvr</option> 
+<option value="3">nvr</option> 
+<option value="4">照明灯</option> 
+<option value="5">小夜灯</option> 
+<option value="6">门铃</option> 
+<option value="7">Gateway</option> 
+<option value="8">7"屏</option> 
+<option value="9">电池摄像机</option> 
+</select> 
+
+<p>选择能力级</p>
+<label><input id="4G" name="ability" type="checkbox" value="0" />4G<label>
+<label><input id="WIFI" name="ability" type="checkbox" value="1" />STA WIFI<label>
+<label><input id="soud" name="ability" type="checkbox" value="2" />声波<label>
+<label><input id="QRCode" name="ability" type="checkbox" value="3" />二维扫描<label>
+<label><input id="fish" name="ability" type="checkbox" value="4" />鱼眼<label>
+<label><input id="linkV" name="ability" type="checkbox" value="5" />LinkVisual<label>
+<label><input id="oneN" name="ability" type="checkbox" value="6" />OneNET<label>
+<label><input id="nPair" name="ability" type="checkbox" value="7" />支持NVR扫码套装对码<label>
+<label><input id="sPair" name="ability" type="checkbox" value="8" />支持单品对码<label></label>
+
+<p>输入APP链接，默认 http://d.dvr163.com/00</p>
+<input id="appurl" name="" type="text" size="22" value="" /><br /> 
+
+<p id="test">扩展二维码:</p>
+<div id="qrcode" style="width:100px; height:100px; margin-top:15px; margin-left:50px;"></div>
+<p id="demo" style=" margin-top:40px;" >DEVID</p>
+
+<button type="button" onclick="createQR()" style=" margin-top:15px; margin-left:50px;" >生成</button>
+
+<!--input id="text" type="text" value="http://www.runoob.com" /><br /-->
+
+
+</body>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="qrcode.min.js"></script>
+<script type="text/javascript" src="qrcode.js"></script>
+<script>
+	
+//var qrcodeInst = new QRCode("qrcode");
+var qrcodeInst = new QRCode(document.getElementById("qrcode"), {
+	width : 100,
+	height : 100
+});
+
+/*
+function makeCode () {      
+    var elText = document.getElementById("text");
+    
+    if (!elText.value) {
+        alert("Input a text");
+        elText.focus();
+        return;
+    }
+    
+    qrcodeInst.makeCode(elText.value);
+}
+makeCode();
+
+$("#text").
+	on("blur", function () {
+		makeCode();
+	}).
+	on("keydown", function (e) {
+		if (e.keyCode == 13) {
+			makeCode();
+		}
+	});
+*/
+
+function createQR(){
+    var idstr = document.getElementById("devid").value;
+    var devType = document.getElementById("typedev").value;
+    var appurl = document.getElementById("appurl").value;
+    var needext = document.getElementById("ext").checked;
+    
+    var ability = 0;
+    var date = document.getElementsByName("ability");
+    var thisLength = date.length;
+    var str = new Array(6);
+    for(var i = 0;i < thisLength;i++) {
+        if (date[i].checked == true) {
+            str[i] = date[i].value;
+            ability = ability | (1<<i);
+        }
+    }
+    
+    //var outstr = str[0]+" - " str[1]+" - " str[2]+" - " str[3]+" - " str[4]+" - " str[5];
+    var abilitystr = ability.toString(16);
+    abilitystr = abilitystr.toLocaleUpperCase();
+    var len = abilitystr.length;
+    for(var i =0;i<(4-len);i++)
+    {
+    	abilitystr = "0"+abilitystr;
+    }
+
+    var qrcode = "00"+abilitystr+devType+"_"+idstr;
+    
+    var crc_data = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var qrCodeLen = qrcode.length;
+    var crcSum = 0;
+    for(var i =0;i<qrCodeLen;i++)
+    {
+    	crcSum += qrcode[i].charCodeAt();
+    }
+    var verify = crcSum%62;
+    var crcstr = crc_data[verify];
+    var extperfix = "E" + crcstr + "00"+ abilitystr + devType + "_";
+  //document.getElementById("test").innerHTML="len:"+qrCodeLen+"  sum:"+crcSum+"  verify:"+verify+"  crcstr:"+crcstr ;//+"  t:"+test;
+    if (appurl.length > 0)
+    {
+        appurl = appurl + "?p="
+    }
+	var showQRCodestr = appurl;
+    if (needext) {
+        showQRCodestr += extperfix;
+    }
+    showQRCodestr += idstr;
+	document.getElementById("demo").innerHTML=showQRCodestr;
+	qrcodeInst.makeCode(showQRCodestr);
+}
+</script>
+
+<script 
+function toUtf8(str) {    
+    var out, i, len, c;    
+    out = "";    
+    len = str.length;    
+    for(i = 0; i < len; i++) {    
+        c = str.charCodeAt(i);    
+        if ((c >= 0x0001) && (c <= 0x007F)) {    
+            out += str.charAt(i);    
+        } else if (c > 0x07FF) {    
+            out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));    
+            out += String.fromCharCode(0x80 | ((c >>  6) & 0x3F));    
+            out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));    
+        } else {    
+            out += String.fromCharCode(0xC0 | ((c >>  6) & 0x1F));    
+            out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));    
+        }    
+    }    
+    return out;    
+} 
+/script>
+</html>
